@@ -1,7 +1,8 @@
 from pathlib import Path
 from typing import NamedTuple
+from itertools import product
 
-RAD = {-1, 0, 1}
+R = (-1, 0, 1)
 ACTIVE = "#"
 INACTIVE = "."
 
@@ -20,15 +21,7 @@ class Point(NamedTuple):
 
 
 def neighbours(p):
-    def _neighbours():
-        for x in RAD:
-            for y in RAD:
-                for z in RAD:
-                    for w in RAD:
-                        if abs(x) + abs(y) + abs(z) + abs(w) > 0:
-                            yield Point(p.x + x, p.y + y, p.z + z, p.w + w)
-
-    return list(_neighbours())
+    return [Point(*map(sum, zip(p, v))) for v in product(*[R] * len(p)) if sum(map(abs, v)) != 0]
 
 
 def read(text):

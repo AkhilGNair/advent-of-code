@@ -6,24 +6,27 @@ import aoc
 Point = namedtuple("Point", ["x", "y"])
 
 numbers, *cards = aoc.read(path="input.txt", sep="\n\n", cast_as=str)
-numbers = numbers.split(",")
+numbers = [int(n) for n in numbers.split(",")]
+
+N = 5  # Bingo card length
+PATTERN_NUM = r"[0-9]+"
 
 
-def get_x(i, n):
+def x(i, n=N):
     return i - ((i // n) * n)
 
 
-def get_y(i, n):
+def y(i, n=N):
     return i // n
 
 
 class Card:
 
-    EXPECTED = {0, 1, 2, 3, 4}
+    ALL = set(range(N))
 
     def __init__(self, data):
-        ns = re.findall(r"[0-9]+", data)
-        self.data = {v: Point(get_x(k, 5), get_y(k, 5)) for k, v in enumerate(ns)}
+        ns = re.findall(PATTERN_NUM, data)
+        self.data = {int(v): Point(x(i), y(i)) for i, v in enumerate(ns)}
         self.complete = False
 
     def strike(self, n):
@@ -33,17 +36,15 @@ class Card:
             # Boards don't have all numbers
             pass
 
-        if self.h_line_found() or self.v_line_found():
+        if self.line_found("x") or self.line_found("y"):
             self.complete = True
 
-    def h_line_found(self):
-        return not (self.EXPECTED == {p.y for p in self.data.values()})
-
-    def v_line_found(self):
-        return not (self.EXPECTED == {p.x for p in self.data.values()})
+    def line_found(self, axis):
+        lines = {getattr(p, axis) for p in self.data.values()}
+        return bool(self.ALL.difference(lines))
 
     def score(self, n):
-        return int(n) * sum(int(i) for i in self.data.keys())
+        return n * sum(self.data)
 
 
 print("===")
@@ -56,7 +57,7 @@ for n in numbers:
         if card.complete:
             print("BINGO!", card.score(n))
 
-            # Uncomment for part 1
+            # # Uncomment for part 1
             # import sys
             # sys.exit(0)
 

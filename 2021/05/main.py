@@ -1,5 +1,5 @@
 from collections import Counter
-from typing import NamedTuple
+from typing import List, NamedTuple
 
 import aoc
 
@@ -20,7 +20,8 @@ def not_diagonal(p1, p2):
     return (p1.y == p2.y) or (p1.x == p2.x)
 
 
-def expand_line(p1, p2):
+def expand_hv_line(p1, p2):
+    """Expands horizontal or vertical lines."""
     axis = "x" if p1.y == p2.y else "y"
     other_axis = "x" if axis == "y" else "y"
     constant = p1[other_axis]  # p1 or p2
@@ -31,17 +32,35 @@ def expand_line(p1, p2):
     return [Point(**p) for p in ps]
 
 
+def n_intersections(points: List[Point]):
+    return len([v for v in Counter(points).values() if v > 1])
+
+
 data = aoc.read("input.txt", cast_as=str)
 data = [l.split(" -> ") for l in data]
 data = [tuple(Point.from_str(p) for p in ps) for ps in data]
 
 # For part 1, only want non-diagonal lines
 straights = [ps for ps in data if not_diagonal(*ps)]
-points = [p for ps in straights for p in expand_line(*ps)]
-point_counts = Counter(points)
+points = [p for ps in straights for p in expand_hv_line(*ps)]
 
 # Part 1
-n_intersections = len([v for v in point_counts.values() if v > 1])
-print("Part 1:", n_intersections)
+print("Part 1:", n_intersections(points))
+
+
+def expand_d_line(p1, p2):
+    x_dir = -1 if p1.x > p2.x else 1
+    y_dir = -1 if p1.y > p2.y else 1
+
+    x_range = range(p1.x, p2.x + (x_dir), x_dir)
+    y_range = range(p1.y, p2.y + (y_dir), y_dir)
+
+    return [Point(x, y) for x, y in zip(x_range, y_range)]
+
+
+diagonals = [ps for ps in data if not not_diagonal(*ps)]
+diag_points = [p for ps in diagonals for p in expand_d_line(*ps)]
+
+print("Part 2:", n_intersections(points + diag_points))
 
 print("===")

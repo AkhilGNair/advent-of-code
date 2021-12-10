@@ -1,4 +1,4 @@
-from typing import NamedTuple, Set
+from typing import NamedTuple, Iterable
 from math import prod
 
 import aoc
@@ -52,14 +52,13 @@ print("Part 1:", sum(cave[p] + 1 for p in low_points))
 from collections import deque
 
 
-def find_basin(p: Point) -> Set[Point]:
+def find_basin(p: Point) -> Iterable[Point]:
     stack = deque([p])
-    basin = set()
 
     while stack:
         point = stack.pop()
         height = cave[point]
-        basin.add(point)
+        yield point
         qs = neighbours(point)
         for q in qs:
             try:
@@ -69,10 +68,8 @@ def find_basin(p: Point) -> Set[Point]:
             except KeyError:
                 pass
 
-    return basin
 
-
-basin_sizes = [len(find_basin(p)) for p in low_points]
+basin_sizes = [len(set(find_basin(p))) for p in low_points]
 basin_sizes.sort()
 
 print("Part 2:", prod(basin_sizes[-3:]))

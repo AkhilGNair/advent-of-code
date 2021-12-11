@@ -27,7 +27,7 @@ def neighbours(p: Point) -> List[Point]:
 
 
 def count_flashes(octopodes) -> int:
-    return len([o for o, e in octopodes.items() if not e])
+    return list(octopodes.values()).count(0)
 
 
 def flash(octopodes):
@@ -35,9 +35,8 @@ def flash(octopodes):
     while (flashing_octos := [p for p, e in octopodes.items() if e > ENOUGH_ENERGY]) :
 
         # Set popped octo energy to 0
-        for p, e in octopodes.items():
-            if e > ENOUGH_ENERGY:
-                octopodes[p] = 0
+        for octo in flashing_octos:
+            octopodes[octo] = 0
 
         # All adjacent octos who gain some energy
         all_neighbours = [neighbours(p) for p in flashing_octos]

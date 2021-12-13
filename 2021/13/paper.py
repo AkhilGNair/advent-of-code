@@ -1,43 +1,31 @@
 from aoc import Point, read
 
+from functools import reduce
+
 
 data = read("input.txt", cast_as=str, sep="\n")
-
-OTHER_AXIS = {"x": "y", "y": "x"}
-
 DELIM = data.index("")
 
-points = data[:DELIM]
-points = [Point(*map(int, p.split(","))) for p in points]
-DIMX, DIMY = max(p.x for p in points), max(p.y for p in points)
-
-folds = data[(DELIM + 1) :]
-folds = [f.replace("fold along ", "") for f in folds]
+points = [Point(*map(int, p.split(","))) for p in data[:DELIM]]
+folds = [f.replace("fold along ", "") for f in data[(DELIM + 1) :]]
 
 
-def make_fold(fold, points):
+def make_fold(points, fold):
     axis, pos = fold.split("=")
-    other = OTHER_AXIS[axis]
     pos = int(pos)
 
     for p in points:
-        if p[axis] > pos:
-            data = {axis: 2 * pos - p[axis], other: p[other]}
-            yield Point(**data)
-        else:
-            yield p
-
-
-for fold in folds:
-    points = set(make_fold(fold, points))
+        px = (2 * pos - p.x) if (axis == "x") and (p.x > pos) else p.x
+        py = (2 * pos - p.y) if (axis == "y") and (p.y > pos) else p.y
+        yield Point(px, py)
 
 
 def printer(points):
     for y in range(10):
-        print("\n", end="")
+        ans = ""
         for x in range(60):
-            symbol = "#" if Point(x, y) in points else "."
-            print(symbol, end="")
+            ans += "#" if Point(x, y) in points else "."
+        print(ans)
 
 
-printer(points)
+printer(set(reduce(make_fold, folds, points)))

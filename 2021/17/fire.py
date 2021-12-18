@@ -49,17 +49,14 @@ def shoot(vx, vy):
             if has_hit:
                 return max_py
             else:
-                return 0
+                return None
         if new_py > max_py:
             max_py = new_py
 
 
-best_trajectory = 0
-max_y = 0
-
-for vx in range(1000):
-    for vy in range(1000):
-        new_y = shoot(vx, vy)
-        if new_y > max_y:
-            max_y = new_y
-            best_trajectory = (vx, vy)
+def search():
+    for vx in range(-200, 200, 1):
+        for vy in range(-200, 200, 1):
+            hit = shoot(vx, vy)
+            if hit is not None:
+                yield (vx, vy)
